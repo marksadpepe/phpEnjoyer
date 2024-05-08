@@ -6,6 +6,7 @@ class Request {
   private string $uri;
   private ?array $body = null;
   private array $headers = [];
+  private array $cookies = [];
 
   public function __construct() {
     $this->method = $_SERVER["REQUEST_METHOD"];
@@ -28,6 +29,14 @@ class Request {
     }
 
     return $this->headers;
+  }
+
+  public function get_cookies(): array {
+    foreach($_COOKIE as $name=>$value) {
+      $this->cookies[$name] = $value;
+    }
+
+    return $this->cookies;
   }
 
   public function get_body(): ?array {
