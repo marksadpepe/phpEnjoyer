@@ -22,5 +22,9 @@ class Auth {
       "tokens" => $tokens
     ];
   }
+
+  public static function sign_out(string $token): void {
+    Token::delete_token($token);
+  }
 }
 ?>
