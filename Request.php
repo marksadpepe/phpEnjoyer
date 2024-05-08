@@ -7,10 +7,19 @@ class Request {
   private ?array $body = null;
   private array $headers = [];
   private array $cookies = [];
+  private array $payload = [];
 
   public function __construct() {
     $this->method = $_SERVER["REQUEST_METHOD"];
     $this->uri = $_SERVER["REQUEST_URI"];
+  }
+
+  public function set_payload(array $payload): void {
+    $this->payload = $payload;
+  }
+
+  public function get_payload(): array {
+    return $this->payload;
   }
 
   public function get_method(): string {
