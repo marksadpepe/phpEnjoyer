@@ -9,7 +9,7 @@ class AuthController {
   public static function sign_up(Request $req): Response {
     $body = $req->get_body();
     try {
-      $data = Auth::sign_up($body["name"], $body["email"], $body["password"]);
+      $data = Auth::sign_up($body);
       return Response::json(201, $data);
     } catch (\Exception $e) {
       return Response::json(409, ["error" => $e->getMessage()]);
