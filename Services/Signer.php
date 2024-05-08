@@ -33,16 +33,17 @@ class Signer {
     return "{$header_encode}.{$payload_encode}.{$signature}";
   }
 
-  public static function verify(string $token): bool {
+  public static function verify(string $token): ?array {
     [$header, $payload, $signature] = explode(".", $token);
     $decoded_payload = json_decode(self::decode($payload), true);
     $signature_to_check = self::encode(hash_hmac("sha256", "{$header}.{$payload}", self::$secret, true));
 
     if ($signature == $signature_to_check && isset($decoded_payload["exp"]) && $decoded_payload["exp"] >= time()) {
-      return true;
+      unset($decoded_payload["exp"]);
+      return $decoded_payload;
     }
 
-    return false;
+    return null;
   }
 
   private static function encode(string $data): string {
