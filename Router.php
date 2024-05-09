@@ -55,7 +55,6 @@ class Router {
       return null;
     }
 
-    header("Content-Type: application/json");
     [$mdws, $handler] = $this->routes[$uri][$method];
     if ($mdws) {
       foreach ($mdws as $mdw) {
