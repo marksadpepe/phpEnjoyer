@@ -12,6 +12,7 @@ $router->post("/sign-in", null, "AuthController::sign_in");
 $router->post("/sign-out", null, "AuthController::sign_out");
 
 $router->get("/api/users", ["AuthMiddleware::handle"],  "UserController::get_users");
+$router->get("/api/users/{uid}", ["AuthMiddleware::handle"],  "UserController::get_user");
 
 return $router;
 ?>

@@ -34,6 +34,21 @@ class User {
     ];
   }
 
+  public static function get_user_by_id(int $id): array {
+    global $db;
+
+    $query = "select id, fullName, email, created from " . self::$table_name . " where id = {$id}";
+    $user = $db->query($query)->fetch_assoc();
+
+    if (!$user) {
+      throw new \Exception("404:User with such email does not exists");
+    }
+
+    $user["created"] = strtotime($user["created"]);
+
+    return $user;
+  }
+
   public static function get_user_by_email(string $email): array {
     global $db;
 
