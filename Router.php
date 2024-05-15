@@ -22,11 +22,14 @@ class Router {
   }
 
   public function add(string $method, string $uri, ?array $mdws, mixed $handler): void {
-    if (!array_key_exists($uri, $this->routes)) {
-      $this->routes[$uri] = [];
+    $pattern = preg_replace("/{([a-zA-Z]+)}/", "(?P<\\1>[^/]+)", $uri);
+    $pattern = "/^" . str_replace("/", "\\/", $pattern) . "$/";
+
+    if (!isset($this->routes[$pattern])) {
+      $this->routes[$pattern] = [];
     }
 
-    $this->routes[$uri][$method] = [$mdws, $handler];
+    $this->routes[$pattern][$method] = [$mdws, $handler];
   }
 
   public function get(string $uri, ?array $mdws, mixed $handler): void {
@@ -38,37 +41,37 @@ class Router {
   }
 
   public function route(Request $req): ?Response {
+    $find_uri = false;
     $method = $req->get_method();
     $uri = $req->get_uri();
 
-    if (!array_key_exists($uri, $this->routes)) {
-      header("Content-Type: text/html");
-      http_response_code(404);
-      echo "<h1>! Page Not Found !</h1>";
-      return null;
-    }
+    foreach($this->routes as $pattern=>$values) {
+      if (preg_match($pattern, $uri, $matches)) {
+        $find_uri = true;
 
-    if (!array_key_exists($method, $this->routes[$uri])) {
-      header("Content-Type: text/html");
-      http_response_code(405);
-      echo "<h1>! Method Not Allowed !</h1>";
-      return null;
-    }
-
-    header("Content-Type: application/json");
-    [$mdws, $handler] = $this->routes[$uri][$method];
-    if ($mdws) {
-      foreach ($mdws as $mdw) {
-        $mdw_handler = $this->middleware_namespace . "\\" . $mdw;
-        $res = call_user_func($mdw_handler, $req);
-        if ($res) {
-          return $res;
+        if (!isset($this->routes[$pattern][$method])) {
+          return Response::json(405, ["error" => "Method Not Allowed"]);
         }
+
+        [$mdws, $handler] = $this->routes[$pattern][$method];
+        if ($mdws) {
+          foreach($mdws as $mdw) {
+            $mdw_handler = $this->middleware_namespace . "\\" . $mdw;
+            $res = call_user_func($mdw_handler, $req);
+            if ($res) {
+              return $res;
+            }
+          }
+        }
+
+        $handler = $this->namespace . "\\" . $handler;
+        return call_user_func($handler, $req, $matches);
       }
     }
-    $handler = $this->namespace . "\\" . $handler;
 
-    return call_user_func($handler, $req);
+    if (!$find_uri) {
+      return Response::json(404, ["error" => "Page Not Found"]);
+    }
   }
 }
 ?>

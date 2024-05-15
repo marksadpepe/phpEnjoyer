@@ -30,5 +30,13 @@ class Token {
     $db->query("insert into " . self::$table_name . "(token, userId) values('{$token}', {$user_id})");
     return;
   }
+
+  public static function delete_token(string $token) {
+    global $db;
+
+    $db->query("delete from " . self::$table_name . " where token = '{$token}'");
+
+    return;
+  }
 }
 ?>

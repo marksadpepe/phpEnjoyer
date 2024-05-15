@@ -1,10 +1,13 @@
 <?php
 namespace Blog\Services;
 
+use Blog\Services\Role;
+use Blog\Services\UserRole;
+
 class User {
   private static string $table_name = "users";
 
-  public static function create(string $name, string $email, string $password): array {
+  public static function create(string $name, string $email, string $password, string $role): array {
     global $db;
 
     $res = $db->query("select * from users where email = '{$email}'");
@@ -13,31 +16,36 @@ class User {
       throw new \Exception("User with such email already exists");
     }
 
+    $role_id = Role::get_role_by_name($role)["id"];
+
     $id = $db->query("select id from users order by id desc limit 1")->fetch_assoc()["id"] + 1;
     $pwd_hash = password_hash($password, PASSWORD_DEFAULT);
+
     $query = "insert into " . self::$table_name . "(id, fullName, email, password) values({$id}, '{$name}', '{$email}', '{$pwd_hash}')";
     $db->query($query);
+
+    UserRole::create_user_role($id, $role_id);
 
     return [
       "id" => $id,
       "name" => $name,
       "email" => $email,
+      "role" => $role
     ];
   }
 
-  public static function get_user(string $email, string $password): array {
+  public static function get_user_by_email(string $email): array {
     global $db;
 
-    $user = $db->query("select * from " . self::$table_name . " where email = '{$email}'")->fetch_assoc();
+    $query = "select " . self::$table_name . ".id, fullname, email, password, role, created from " . self::$table_name . " join users_roles as ur on users.email = '{$email}' and users.id = ur.userid join roles on roles.id = ur.roleid order by users.id";
+    $user = $db->query($query)->fetch_assoc();
+
     if (!$user) {
       throw new \Exception("404:User with such email does not exists");
     }
 
-    if (!password_verify($password, $user["password"])) {
-      throw new \Exception("400:Incorrect password");
-    }
+    $user["created"] = strtotime($user["created"]);
 
-    unset($user["password"]);
     return $user;
   }
   
@@ -46,9 +54,11 @@ class User {
 
     $idx = 0;
     $users = [];
-    $qresult = $db->query("select * from " . self::$table_name);
+    $query = "select " . self::$table_name . ".id, fullname, email, role, created from " . self::$table_name . " join users_roles as ur on users.id = ur.userid join roles on roles.id = ur.roleid order by users.id";
+    $qresult = $db->query($query);
 
     foreach($qresult as $user) {
+      $user["created"] = strtotime($user["created"]);
       $users[$idx] = $user;
       $idx++;
     }

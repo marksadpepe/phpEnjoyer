@@ -18,9 +18,12 @@ class AuthMiddleware {
     }
 
     $token = explode(" ", $headers[$key])[1];
-    if (!Signer::verify($token)) {
+    $payload = Signer::verify($token);
+    if (!$payload) {
       return Response::json(401, ["error" => "Unauthorized"]);
     }
+
+    $req->set_payload($payload);
 
     return null;
   }
