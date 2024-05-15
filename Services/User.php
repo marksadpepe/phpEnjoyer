@@ -80,5 +80,12 @@ class User {
 
     return $users;
   }
+
+  public static function delete_user_by_id(int $id): void {
+    global $db;
+
+    $query = "delete from " . self::$table_name . " where id = {$id}";
+    $db->query($query);
+  }
 }
 ?>
