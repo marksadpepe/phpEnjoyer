@@ -1,2 +1,2 @@
 ## Information
-PHP blog
+Simple CRUD application to understand how PHP works
