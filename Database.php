@@ -23,9 +23,12 @@ class Database {
     $this->disconnect();
   }
 
-  public function query(string $query): mixed {
+  public function query(string $query): array {
     $result = $this->conn->query($query);
-    return $result;
+    return [
+      "result" => $result,
+      "rows" => $this->conn->affected_rows
+    ];
   }
 
   private function connect(): void {
