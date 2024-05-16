@@ -21,7 +21,7 @@ class Token {
   public static function save_token(int $user_id, string $token) {
     global $db;
 
-    $res = $db->query("select * from " . self::$table_name . " where userId = {$user_id}")->fetch_assoc();
+    $res = $db->query("select * from " . self::$table_name . " where userId = {$user_id}")["result"]->fetch_assoc();
     if ($res) {
       $db->query("update " . self::$table_name . " set token = '{$token}' where userId = {$user_id}");
       return;
@@ -34,7 +34,10 @@ class Token {
   public static function delete_token(string $token) {
     global $db;
 
-    $db->query("delete from " . self::$table_name . " where token = '{$token}'");
+    $qres = $db->query("delete from " . self::$table_name . " where token = '{$token}'");
+    if ($qres["rows"] < 1) {
+      throw new \Exception("404:Such token does not exists");
+    }
 
     return;
   }

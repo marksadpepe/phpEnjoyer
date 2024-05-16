@@ -10,7 +10,7 @@ class User {
   public static function create(string $name, string $email, string $password, string $role): array {
     global $db;
 
-    $res = $db->query("select * from users where email = '{$email}'");
+    $res = $db->query("select * from users where email = '{$email}'")["result"];
     $candidate = $res->fetch_assoc();
     if ($candidate) {
       throw new \Exception("User with such email already exists");
@@ -18,7 +18,7 @@ class User {
 
     $role_id = Role::get_role_by_name($role)["id"];
 
-    $id = $db->query("select id from users order by id desc limit 1")->fetch_assoc()["id"] + 1;
+    $id = $db->query("select id from users order by id desc limit 1")["result"]->fetch_assoc()["id"] + 1;
     $pwd_hash = password_hash($password, PASSWORD_DEFAULT);
 
     $query = "insert into " . self::$table_name . "(id, fullName, email, password) values({$id}, '{$name}', '{$email}', '{$pwd_hash}')";
@@ -34,11 +34,26 @@ class User {
     ];
   }
 
+  public static function get_user_by_id(int $id): array {
+    global $db;
+
+    $query = "select id, fullName, email, created from " . self::$table_name . " where id = {$id}";
+    $user = $db->query($query)["result"]->fetch_assoc();
+
+    if (!$user) {
+      throw new \Exception("404:User with such email does not exists");
+    }
+
+    $user["created"] = strtotime($user["created"]);
+
+    return $user;
+  }
+
   public static function get_user_by_email(string $email): array {
     global $db;
 
     $query = "select " . self::$table_name . ".id, fullname, email, password, role, created from " . self::$table_name . " join users_roles as ur on users.email = '{$email}' and users.id = ur.userid join roles on roles.id = ur.roleid order by users.id";
-    $user = $db->query($query)->fetch_assoc();
+    $user = $db->query($query)["result"]->fetch_assoc();
 
     if (!$user) {
       throw new \Exception("404:User with such email does not exists");
@@ -55,7 +70,7 @@ class User {
     $idx = 0;
     $users = [];
     $query = "select " . self::$table_name . ".id, fullname, email, role, created from " . self::$table_name . " join users_roles as ur on users.id = ur.userid join roles on roles.id = ur.roleid order by users.id";
-    $qresult = $db->query($query);
+    $qresult = $db->query($query)["result"];
 
     foreach($qresult as $user) {
       $user["created"] = strtotime($user["created"]);
@@ -64,6 +79,32 @@ class User {
     }
 
     return $users;
+  }
+
+  public static function update_user(int $id, string $full_name, string $email): array {
+    global $db;
+
+    $query = "update " . self::$table_name . " set fullName = '{$full_name}', email = '{$email}' where id = {$id}";
+    $qres = $db->query($query);
+    if ($qres["rows"] < 1) {
+      throw new \Exception("404:User with such ID does not exists");
+    }
+
+    $user = $db->query("select id, fullName, email, created from " . self::$table_name . " where id = {$id}")["result"]->fetch_assoc();
+    $user["created"] = strtotime($user["created"]);
+
+    return $user;
+  }
+
+  public static function delete_user_by_id(int $id): void {
+    global $db;
+
+    $query = "delete from " . self::$table_name . " where id = {$id}";
+    $qres = $db->query($query);
+
+    if ($qres["rows"] < 1) {
+      throw new \Exception("404:User with such id does not exists");
+    }
   }
 }
 ?>

@@ -40,6 +40,14 @@ class Router {
     $this->add("POST", $uri, $mdws, $handler);
   }
 
+  public function put(string $uri, ?array $mdws, mixed $handler): void {
+    $this->add("PUT", $uri, $mdws, $handler);
+  }
+
+  public function delete(string $uri, ?array $mdws, mixed $handler): void {
+    $this->add("DELETE", $uri, $mdws, $handler);
+  }
+
   public function route(Request $req): ?Response {
     $find_uri = false;
     $method = $req->get_method();
