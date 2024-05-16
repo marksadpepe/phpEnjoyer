@@ -81,6 +81,21 @@ class User {
     return $users;
   }
 
+  public static function update_user(int $id, string $full_name, string $email): array {
+    global $db;
+
+    $query = "update " . self::$table_name . " set fullName = '{$full_name}', email = '{$email}' where id = {$id}";
+    $qres = $db->query($query);
+    if ($qres["rows"] < 1) {
+      throw new \Exception("404:User with such ID does not exists");
+    }
+
+    $user = $db->query("select id, fullName, email, created from " . self::$table_name . " where id = {$id}")["result"]->fetch_assoc();
+    $user["created"] = strtotime($user["created"]);
+
+    return $user;
+  }
+
   public static function delete_user_by_id(int $id): void {
     global $db;
 

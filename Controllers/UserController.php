@@ -37,6 +37,17 @@ class UserController {
     }
   }
 
+  public static function update_user(Request $req, array $route_params): Response {
+    $body = $req->get_body();
+    try {
+      $user = User::update_user($route_params["uid"], $body["fullName"], $body["email"]);
+      return Response::json(200, $user);
+    } catch (\Exception $e) {
+      [$status_code, $err_msg] = explode(":", $e->getMessage());
+      return Response::json((int)$status_code, ["error" => $err_msg]);
+    }
+  }
+
   public static function delete_user(Request $req, array $route_params): Response {
     try {
       User::delete_user_by_id($route_params["uid"]);
