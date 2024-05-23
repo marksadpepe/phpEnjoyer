@@ -37,6 +37,7 @@ class User {
   public static function get_user_by_id(int $id): array {
     global $db;
     global $redis;
+    global $REDIS_TTL;
 
     $key = "user:{$id}";
     $raw = $redis->get($key);
@@ -53,7 +54,7 @@ class User {
 
     $user["created"] = strtotime($user["created"]);
     $redis->set($key, json_encode($user));
-    $redis->expire($key, 600)
+    $redis->expire($key, $REDIS_TTL);
 
     return $user;
   }
@@ -94,7 +95,7 @@ class User {
     }
 
     $redis->set("users", json_encode($users));
-    $redis->expire("users", 600);
+    $redis->expire("users", $REDIS_TTL);
 
     return $users;
   }
