@@ -36,6 +36,14 @@ class User {
 
   public static function get_user_by_id(int $id): array {
     global $db;
+    global $redis;
+    global $REDIS_TTL;
+
+    $key = "user:{$id}";
+    $raw = $redis->get($key);
+    if ($raw) {
+      return json_decode($raw, true);
+    }
 
     $query = "select id, fullName, email, created from " . self::$table_name . " where id = {$id}";
     $user = $db->query($query)["result"]->fetch_assoc();
@@ -45,6 +53,8 @@ class User {
     }
 
     $user["created"] = strtotime($user["created"]);
+    $redis->set($key, json_encode($user));
+    $redis->expire($key, $REDIS_TTL);
 
     return $user;
   }
@@ -66,6 +76,12 @@ class User {
   
   public static function get_users(): array {
     global $db;
+    global $redis;
+
+    $raw = $redis->get("users");
+    if ($raw) {
+      return json_decode($raw, true);
+    }
 
     $idx = 0;
     $users = [];
@@ -77,6 +93,9 @@ class User {
       $users[$idx] = $user;
       $idx++;
     }
+
+    $redis->set("users", json_encode($users));
+    $redis->expire("users", $REDIS_TTL);
 
     return $users;
   }
