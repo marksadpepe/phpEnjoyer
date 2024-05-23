@@ -11,12 +11,8 @@ $router->post("/sign-up", null, "AuthController::sign_up");
 $router->post("/sign-in", null, "AuthController::sign_in");
 $router->post("/sign-out", null, "AuthController::sign_out");
 
-//$router->get("/api/users", ["AuthMiddleware::handle"],  "UserController::get_users");
-//$router->get("/api/users/{uid}", ["AuthMiddleware::handle"],  "UserController::get_user");
-//
-$router->get("/api/users", null,  "UserController::get_users");
-$router->get("/api/users/{uid}", null,  "UserController::get_user");
-
+$router->get("/api/users", ["AuthMiddleware::handle"],  "UserController::get_users");
+$router->get("/api/users/{uid}", ["AuthMiddleware::handle"],  "UserController::get_user");
 $router->post("/api/users", ["AuthMiddleware::handle"], "UserController::create_user");
 $router->put("/api/users/{uid}", ["AuthMiddleware::handle"], "UserController::update_user");
 $router->delete("/api/users/{uid}", ["AuthMiddleware::handle"], "UserController::delete_user");
