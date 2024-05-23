@@ -7,6 +7,7 @@ class Signer {
 
   public static function sign(array $payload, string $exp): string {
     $split = str_split($exp);
+    //
     $value = (int)implode("", [$split[0], $split[1]]);
     $t = $split[count($split) - 1];
 

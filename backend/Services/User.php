@@ -77,6 +77,7 @@ class User {
   public static function get_users(): array {
     global $db;
     global $redis;
+    global $REDIS_TTL;
 
     $raw = $redis->get("users");
     if ($raw) {
