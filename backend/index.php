@@ -15,9 +15,14 @@ $db = new Database(
   $DB_PORT
 );
 
+$redis = new Redis();
+$redis->connect($REDIS_HOST, $REDIS_PORT);
+
 $request = new Request();
 $response = $router->route($request);
 if ($response) {
   $response->send();
 }
+
+$redis->close();
 ?>
