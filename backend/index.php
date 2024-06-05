@@ -18,6 +18,12 @@ $db = new Database(
 $redis = new Redis();
 $redis->connect($REDIS_HOST, $REDIS_PORT);
 
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+header('Access-Control-Max-Age: 3600');
+header('Access-Control-Allow-Headers: Cookie, Content-Type, Access-Control-Allow-Headers, Authorization');
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Origin: {$ORIGIN}");
+
 $request = new Request();
 $response = $router->route($request);
 if ($response) {
