@@ -1,0 +1,9 @@
+.btnC {
+  padding: 4px 24px;
+  color: black;
+  font-size: 22px;
+  background: transparent;
+  border: 1px solid black;
+  border-radius: 4px;
+  cursor: pointer;
+}

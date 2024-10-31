@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+}
+
+.App {
+  width: 1000px;
+}
+
+h4 {
+  font-size: 32px;
+}
+
+.post {
+  display: flex;
+  padding: 15px;
+  border: 2px solid black;
+  border-radius: 4px;
+  margin-top: 14px;
+  justify-content: space-between;
+  align-items: center;
+}
